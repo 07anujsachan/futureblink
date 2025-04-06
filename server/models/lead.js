@@ -17,4 +17,5 @@ const LeadSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = model("Lead", LeadSchema);
+const Lead = model("Lead", LeadSchema);
+module.exports = Lead;

@@ -24,4 +24,5 @@ const NodeSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = model("Node", NodeSchema);
+const Node = model("Node", NodeSchema);
+module.exports = Node;

@@ -21,4 +21,5 @@ var SequenceSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Sequence", SequenceSchema);
+const Sequence = mongoose.model("Sequence", SequenceSchema);
+module.exports = Sequence;
