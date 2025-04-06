@@ -7,6 +7,7 @@ var dotenv = require("dotenv");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var emailsRouter = require("./routes/emails");
+var sequenceRouter = require("./routes/sequence");
 const connectDB = require("./config/database");
 
 dotenv.config();
@@ -29,5 +30,6 @@ app.use((req, res, next) => {
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/api/emails", emailsRouter);
+app.use("/api/sequences", sequenceRouter);
 
 module.exports = app;
