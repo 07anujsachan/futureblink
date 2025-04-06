@@ -1,10 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dialog } from "@headlessui/react";
 import { useState } from "react";
+import { createSequence } from "../services";
 
 export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
   const [name, setName] = useState("");
 
+  const createSequences = async () =>{
+    try {
+      const data = await createSequence({
+        name: name,
+        status: "Draft", // Optional (defaults to 'Draft' if you don't pass it)
+        nodes: ["605c3c1b8e620f23b8d4b5d1", "605c3c1b8e620f23b8d4b5d2"], 
+        currentNodeId: null, 
+        
+        lastExecutedNodeIndex: null,
+      
+      })
+   if(data){
+    onCreate( name)
+   } } catch (error) {
+      
+    }
+
+  }
+   
   return (
     <Dialog open={isOpen} onClose={onClose} className="fixed z-50 inset-0">
       <div className="flex items-center justify-center min-h-screen bg-black/50">
@@ -30,7 +50,7 @@ export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
               Back
             </button>
             <button
-              onClick={() => onCreate(name)}
+              onClick={createSequences}
               disabled={!name}
               className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
             >

@@ -15,7 +15,7 @@ var SequenceSchema = new Schema({
     },
   ],
   currentNodeId: { type: String, default: null },
-  createdBy: { type: String, required: true },
+  // createdBy: { type: String, required: true },
   lastExecutedNodeIndex: { type: Number, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
