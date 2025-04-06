@@ -62,9 +62,23 @@ const updateSequence = async (req, res) => {
   }
 };
 
+const deleteSequence = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const sequence = await Sequence.findByIdAndDelete(id);
+    if (!sequence) {
+      return res.status(404).json({ message: "Sequence not found" });
+    }
+    return res.status(200).json({ message: "Sequence deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllSequences,
   createSequence,
   getSequenceDetails,
   updateSequence,
+  deleteSequence,
 };
