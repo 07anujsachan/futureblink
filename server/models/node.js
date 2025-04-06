@@ -17,7 +17,7 @@ const NodeSchema = new Schema(
       emails: [String],
       subject: String,
       body: String,
-      delayTime: Number, // contains label, emails, subject, body, delayTime
+      delayTime: Number,
     },
     nextNodeId: { type: String, default: null },
   },

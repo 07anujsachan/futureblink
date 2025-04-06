@@ -9,41 +9,54 @@ import {
   OnConnect,
   ReactFlow,
   useEdgesState,
-  useNodesState
+  useNodesState,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import AddBlockModal from "../components/AddBlockModal";
 import { Header } from "../components/Header";
 import { LeadSourceModal } from "../components/LeadSourceModal";
 import { initialNodes } from "../nodes";
 import { AppNode } from "../nodes/types";
+import { getSequenceById } from "../services";
 
 export default function SequenceBuilderPage() {
   const location = useLocation();
+  const { id } = useParams();
+
   const name = new URLSearchParams(location.search).get("name");
 
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [emails, setEmails] = useState<string>("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  
+  const [activeSequence, setActiveSequence] = useState(null);
+
   const onConnect: OnConnect = (connection) =>
     setEdges((eds) => addEdge(connection, eds));
-  
 
+  const getSequence = async () => {
+    try {
+      const data = await getSequenceById(id);
+      setActiveSequence(data);
+      console.log(activeSequence);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getSequence();
+  }, []);
 
   const handleNodeClick = (event: any, node: any) => {
-   
-      setSelectedNodeId(node.id);
-  
+    setSelectedNodeId(node.id);
   };
-const activeNode = nodes.find((node:any) => node.id === selectedNodeId)
+  const activeNode = nodes.find((node: any) => node.id === selectedNodeId);
 
-console.log(activeNode);
-
+  console.log(emails);
+ 
   const handleSaveEmails = () => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -121,11 +134,20 @@ console.log(activeNode);
         </ReactFlow>
       </div>
       {activeNode?.data?.label === "Add Lead Source" && (
-       <LeadSourceModal emails={emails} setEmails={setEmails} handleSaveEmails={handleSaveEmails} setSelectedNodeId={setSelectedNodeId}/>
+        <LeadSourceModal
+          emails={emails}
+          setEmails={setEmails}
+          handleSaveEmails={handleSaveEmails}
+          setSelectedNodeId={setSelectedNodeId}
+        />
       )}
 
-{activeNode?.data?.label === "+" && (
-       <AddBlockModal onSelect={() => console.log("hello")} onClose={()=> setSelectedNodeId(null)}/>
+      {activeNode?.data?.label === "+" && (
+        <AddBlockModal
+          onSelect={() => console.log("hello")}
+          onClose={() => setSelectedNodeId(null)}
+          seqId={id}
+        />
       )}
     </div>
   );

@@ -1,39 +1,35 @@
-import React, { useState } from "react";
-import { createNode } from "../services"; // <-- your service function
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
+import { addNodeToSequence } from "../services";
 
-const ColdEmailModal = ({ isOpen, onClose }: any ) => {
+const ColdEmailModal = ({ isOpen, onClose, seqId }: any) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
-  const handleSubmit = async (e: any ) => {
-    e.preventDefault();
+  const handleAddNode = async (type: any, data: any) => {
     try {
-      const newNode = {
-        name: "Cold Email",
-        type: "Email",
-        data: {
-          subject,
-          body,
-        },
-      };
-      await createNode(newNode);
-      alert("Node created successfully!");
-      onClose();
-      setSubject("");
-      setBody("");
-    } catch (error) {
-      console.error("Error creating node:", error);
+      const newNode = await addNodeToSequence(seqId, { type, data });
+      console.log("Node Added Successfully:", newNode);
+      // add to reactflow nodes here
+    } catch (err) {
+      console.error("Failed to add node:", err);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div className="bg-white p-4 rounded-md">
         <h2>Create Cold Email</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={styles.inputGroup}>
+        <form onSubmit={() => handleAddNode("cold-email", {
+      label: "Email",
+      emails: ,
+      subject: String,
+      body: String,
+      delayTime: Number,
+  })}>
+          <div>
             <label>Subject:</label>
             <input
               type="text"
@@ -42,7 +38,7 @@ const ColdEmailModal = ({ isOpen, onClose }: any ) => {
               required
             />
           </div>
-          <div style={styles.inputGroup}>
+          <div>
             <label>Body:</label>
             <textarea
               value={body}
@@ -50,32 +46,16 @@ const ColdEmailModal = ({ isOpen, onClose }: any ) => {
               required
             />
           </div>
-          <div style={styles.buttonGroup}>
+          <div>
             <button type="submit">Create</button>
-            <button type="button" onClick={onClose}>Cancel</button>
+            <button type="button" onClick={onClose}>
+              Cancel
+            </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-// Some basic inline styles for the modal
-const styles = {
-  overlay: {
-    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", display: "flex",
-    alignItems: "center", justifyContent: "center",
-  },
-  modal: {
-    backgroundColor: "#fff", padding: "20px", borderRadius: "8px", width: "400px",
-  },
-  inputGroup: {
-    marginBottom: "10px",
-  },
-  buttonGroup: {
-    display: "flex", justifyContent: "space-between",
-  },
 };
 
 export default ColdEmailModal;

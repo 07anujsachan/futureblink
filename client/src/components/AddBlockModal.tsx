@@ -1,18 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-const AddBlockModal = ({ onClose, onSelect }: any) => {
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const openColdEmailModal = () => {
-    setModalOpen(true);
-  };
-
-  const closeColdEmailModal = () => {
-    setModalOpen(false);
-  };
-
+import ColdEmailModal from "./ColdEmail";
+const AddBlockModal = ({ onClose, onSelect, seqId }: any) => {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+ 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+    <>
+    <div className="fixed inset-0 bg-black/50 z-30 flex items-center justify-center">
       <div className="bg-white rounded-xl w-[800px]  p-6 relative">
         {/* Close Button */}
         <button
@@ -40,8 +34,8 @@ const AddBlockModal = ({ onClose, onSelect }: any) => {
             <h3 className="text-sm font-medium text-gray-600 mb-2">Outreach</h3>
             <div className="">
               <div
-                // onClick={() => onSelect("coldEmail")}
-                onClick={openColdEmailModal}
+               
+                onClick={() => setIsEmailModalOpen(true)}
                 className="cursor-pointer border-1 border-gray-300 rounded-lg p-5 hover:bg-gray-50 flex w-full"
               >
                 <div className="text-blue-500 text-2xl mb-1 mr-4 border-2 border-amber-700 px-3 py-2 bg-pink-200">
@@ -82,6 +76,8 @@ const AddBlockModal = ({ onClose, onSelect }: any) => {
         </div>
       </div>
     </div>
+    {isEmailModalOpen && <ColdEmailModal isOpen={isEmailModalOpen} seqId={seqId} onClose={()=> setIsEmailModalOpen(false)}/>}
+    </>
   );
 };
 

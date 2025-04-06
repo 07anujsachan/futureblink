@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
  import axios from "axios";
 const BASE_URL= "http://localhost:3000/api"
 export const getAllSequences = async () =>{
@@ -34,12 +35,23 @@ export const createSequence = async (sequenceData: any) => {
     }
   };
    
-  export const createNode = async (nodeData: any ) => {
+  export const addNodeToSequence = async (sequenceId:any, nodeData:any) => {
     try {
-      const response = await axios.post(`${BASE_URL}/sequences/${sequenceId}/node`, nodeData);
+      const response = await axios.post(`${BASE_URL}/sequence/${sequenceId}/node`, nodeData);
       return response.data;
     } catch (error) {
-      console.error("Error creating node:", error);
+      console.log(error);
+      
+    }
+  };
+  
+
+  export const getSequenceById = async (sequenceId: any ) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/sequences/${sequenceId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching sequence details:", error);
       throw error;
     }
   };

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pencil, SendHorizonal, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { SequenceName } from "../components/SequenceName";
 import { deleteSequence, getAllSequences } from "../services";
@@ -73,18 +73,26 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {sequences.map((seq: any) => (
-                  <tr key={seq.id} className="border-b border-neutral-200">
+                  <tr key={seq._id} className="border-b border-neutral-200">
                     <td className="p-4">{seq.name}</td>
                     <td className="p-4">{seq.createdAt}</td>
                     <td className="p-4 ">
                       <span className="border-2 px-10 rounded-md bg-[#f3e8c4] py-1 border-[#fbd355]">
-                        Paused
+                        {seq.status}
                       </span>
                     </td>
                     <td className="p-4 flex gap-4">
-                      <Link to={`/builder/${seq.id}`}>
-                        <Pencil className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-800" />
-                      </Link>
+                      <Pencil
+                        onClick={() => {
+                          navigate(
+                            `/builder/${seq._id}?name=${encodeURIComponent(
+                              seq.name
+                            )}`
+                          );
+                        }}
+                        className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-800"
+                      />
+
                       <Trash2
                         onClick={() => handleDelete(seq._id)}
                         className="w-5 h-5 text-red-600 cursor-pointer hover:text-red-800"
@@ -102,7 +110,6 @@ const Dashboard = () => {
         onClose={() => setShowModal(false)}
         onCreate={(name: string) => {
           if (!name) return;
-          // Assuming we'll create sequence via API later
           const tempId = crypto.randomUUID();
           navigate(`/builder/${tempId}?name=${encodeURIComponent(name)}`);
         }}
