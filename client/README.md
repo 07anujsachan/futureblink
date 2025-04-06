@@ -1,54 +1,54 @@
-# React + TypeScript + Vite
+![](https://github.com/xyflow/web/blob/main/assets/codesandbox-header-ts.png?raw=true)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# React Flow starter (Vite + TS)
 
-Currently, two official plugins are available:
+We've put together this template to serve as a starting point for folks
+interested in React Flow. You can use this both as a base for your own React
+Flow applications, or for small experiments or bug reports.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**TypeScript not your thing?** We also have a vanilla JavaScript starter template,
+just for you!
 
-## Expanding the ESLint configuration
+## Getting up and running
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+You can get this template without forking/cloning the repo using `degit`:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npx degit xyflow/vite-react-flow-template your-app-name
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The template contains mostly the minimum dependencies to get up and running, but
+also includes eslint and some additional rules to help you write React code that
+is less likely to run into issues:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm install # or `pnpm install` or `yarn install`
 ```
+
+Vite is a great development server and build tool that we recommend our users to
+use. You can start a development server with:
+
+```bash
+npm run dev
+```
+
+While the development server is running, changes you make to the code will be
+automatically reflected in the browser!
+
+## Things to try:
+
+- Create a new custom node inside `src/nodes/` (don't forget to export it from `src/nodes/index.ts`).
+- Change how things look by [overriding some of the built-in classes](https://reactflow.dev/learn/customization/theming#overriding-built-in-classes).
+- Add a layouting library to [position your nodes automatically](https://reactflow.dev/learn/layouting/layouting)
+
+## Resources
+
+Links:
+
+- [React Flow - Docs](https://reactflow.dev)
+- [React Flow - Discord](https://discord.com/invite/Bqt6xrs)
+
+Learn:
+
+- [React Flow – Custom Nodes](https://reactflow.dev/learn/customization/custom-nodes)
+- [React Flow – Layouting](https://reactflow.dev/learn/layouting/layouting)
