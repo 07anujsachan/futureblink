@@ -1,5 +1,6 @@
 const Node = require("../models/node");
 const Sequence = require("../models/sequenceSchema");
+const agenda = require("../config/agenda");
 
 // get all sequences
 const getAllSequences = async (req, res) => {
@@ -14,7 +15,6 @@ const getAllSequences = async (req, res) => {
 const createSequence = async (req, res) => {
   const sequence = new Sequence(req.body);
   try {
-    const savedSequence = await sequence.save();
     const node = await Node.create({
       type: "lead-source",
       sequenceId: sequence._id,
@@ -26,6 +26,8 @@ const createSequence = async (req, res) => {
         delayTime: 0,
       },
     });
+    sequence.nodes.push(node._id);
+    const savedSequence = await sequence.save();
     return res.status(201).json(savedSequence);
   } catch (error) {
     return res.status(400).json({ message: error.message });
@@ -69,9 +71,88 @@ const deleteSequence = async (req, res) => {
     if (!sequence) {
       return res.status(404).json({ message: "Sequence not found" });
     }
+    await Node.deleteMany({ sequenceId: id });
+    // Delete all nodes associated with the sequence
     return res.status(200).json({ message: "Sequence deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+const addNodeToSequence = async (req, res) => {
+  try {
+    const { id: sequenceId } = req.params;
+    const { type, data } = req.body;
+
+    // Create new node
+    const newNode = await Node.create({
+      sequenceId,
+      type,
+      data,
+      nextNodeId: null,
+    });
+
+    // Find last node in the chain
+    const lastNode = await Node.findOne({ sequenceId, nextNodeId: null }).sort({
+      createdAt: -1,
+    });
+
+    if (lastNode) {
+      // Update previous last node to point to the new one
+      lastNode.nextNodeId = newNode._id;
+      await lastNode.save();
+    }
+
+    res.status(201).json(newNode);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const startSequence = async (req, res) => {
+  try {
+    const sequenceId = req.params.id;
+    const nodes = await Node.find({ sequenceId }).sort("createdAt");
+
+    if (nodes.length === 0) return res.status(400).json({ error: "No nodes" });
+
+    await Sequence.findByIdAndUpdate(sequenceId, {
+      status: "Active",
+      currentNodeId: nodes[0]._id,
+      lastExecutedNodeIndex: 0,
+    });
+
+    await agenda.now("send-cold-email", { nodeId: nodes[0]._id });
+
+    res.json({ message: "Sequence started" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const pauseSequence = async (req, res) => {
+  try {
+    await Sequence.findByIdAndUpdate(req.params.id, { status: "Paused" });
+    res.json({ message: "Sequence paused" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const resumeSequence = async (req, res) => {
+  try {
+    const sequence = await Sequence.findById(req.params.id);
+    if (sequence.status !== "Paused") {
+      return res.status(400).json({ error: "Sequence not paused" });
+    }
+
+    const node = await Node.findById(sequence.currentNodeId);
+    await Sequence.findByIdAndUpdate(req.params.id, { status: "Active" });
+    await agenda.now("send-cold-email", { nodeId: node._id });
+
+    res.json({ message: "Sequence resumed" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -81,4 +162,8 @@ module.exports = {
   getSequenceDetails,
   updateSequence,
   deleteSequence,
+  addNodeToSequence,
+  startSequence,
+  pauseSequence,
+  resumeSequence,
 };

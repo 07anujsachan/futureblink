@@ -6,6 +6,10 @@ const {
   getSequenceDetails,
   updateSequence,
   deleteSequence,
+  addNodeToSequence,
+  startSequence,
+  pauseSequence,
+  resumeSequence,
 } = require("../controllers/SequenceController");
 
 var router = express.Router();
@@ -25,5 +29,19 @@ router.put("/:id", updateSequence);
 
 // delete sequence by id
 router.delete("/:id", deleteSequence);
+
+// add node to sequence
+router.post("/:id/node", addNodeToSequence);
+
+//start the sequence nodes
+router.post("/:id/start", startSequence);
+
+// pause sequence
+
+router.post("/:id/pause", pauseSequence);
+
+// resume sequence
+
+router.post("/:id/resume", resumeSequence);
 
 module.exports = router;
