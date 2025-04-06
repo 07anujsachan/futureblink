@@ -20,7 +20,8 @@ export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
    if(data){
     onCreate( name)
    } } catch (error) {
-      
+       console.log(error);
+        
     }
 
   }

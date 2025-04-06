@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pencil, SendHorizonal, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,22 +14,24 @@ const Dashboard = () => {
   //   { id: "1", name: "Welcome Sequence", createdAt: "2025-04-05" },
   //   { id: "2", name: "Lead Nurturing", createdAt: "2025-04-04" },
   // ];
+  const fetchSequences = async () => {
+    try {
+      const data = await getAllSequences();
+      setSequences(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   useEffect(() => {
-    const fetchSequences = async () => {
-      try {
-        const data = await getAllSequences();
-        setSequences(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchSequences();
   }, []);
 
   const handleDelete = async (sequenceId: any) => {
     try {
       const response = await deleteSequence(sequenceId);
+      if (response) {
+        fetchSequences();
+      }
     } catch (error) {
       console.error(error);
     }
