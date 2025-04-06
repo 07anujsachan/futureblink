@@ -1,34 +1,55 @@
-const { sendEmail } = require("../services/emailServices");
-const { getAgenda } = require("../config/agenda");
+const agenda = require("../config/agenda");
 const Node = require("../models/node");
+const Sequence = require("../models/sequenceSchema");
+const { sendEmail } = require("../services/emailServices");
 
-const defineEmailJob = () => {
-  const agenda = getAgenda();
+agenda.define("send-cold-email", async (job) => {
+  const { nodeId } = job.attrs.data;
+  const node = await Node.findById(nodeId);
+  if (!node) return;
 
-  agenda.define("send-cold-email", async (job) => {
-    const { nodeId } = job.attrs.data;
-    const node = await Node.findById(nodeId);
+  const sequenceId = node.sequenceId;
 
-    if (node?.data.emails) {
-      for (const email of node.data.emails) {
+  if (node.type === "cold-email" && node.data.emails) {
+    for (const email of node.data.emails) {
+      try {
         await sendEmail(email, node.data.subject, node.data.body);
+        console.log(`✅ Email sent to ${email}`);
+      } catch (err) {
+        console.error(`❌ Failed to send email to ${email}`, err.message);
       }
     }
+  }
 
-    if (node.nextNodeId) {
-      const nextNode = await Node.findById(node.nextNodeId);
-
-      if (nextNode?.type === "delay") {
-        await agenda.schedule(
-          `${nextNode.data.delayTime} minutes`,
-          "send-cold-email",
-          { nodeId: nextNode.nextNodeId }
-        );
-      } else {
-        await agenda.now("send-cold-email", { nodeId: node.nextNodeId });
-      }
-    }
+  // Update currentNodeId in Sequence
+  await Sequence.findByIdAndUpdate(sequenceId, {
+    currentNodeId: node._id,
   });
-};
 
-module.exports = { defineEmailJob };
+  // Proceed to next node
+  if (node.nextNodeId) {
+    const nextNode = await Node.findById(node.nextNodeId);
+    if (!nextNode) return;
+
+    if (nextNode.type === "delay") {
+      // Wait for delayTime before moving to next node
+      const delayMinutes = nextNode.data.delayTime || 5;
+      await agenda.schedule(`${delayMinutes} minutes`, "send-cold-email", {
+        nodeId: nextNode.nextNodeId,
+      });
+      console.log(`⏳ Waiting ${delayMinutes} min before next node`);
+    } else {
+      // Immediately trigger the next node
+      await agenda.now("send-cold-email", {
+        nodeId: nextNode._id,
+      });
+    }
+  } else {
+    // No next node → complete sequence
+    await Sequence.findByIdAndUpdate(sequenceId, {
+      status: "Completed",
+      currentNodeId: null,
+    });
+    console.log("🎉 Sequence completed");
+  }
+});

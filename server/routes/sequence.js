@@ -31,7 +31,7 @@ router.put("/:id", updateSequence);
 router.delete("/:id", deleteSequence);
 
 // add node to sequence
-router.post("/:id/nodes", addNodeToSequence);
+router.post("/:id/node", addNodeToSequence);
 
 //start the sequence nodes
 router.post("/:id/start", startSequence);

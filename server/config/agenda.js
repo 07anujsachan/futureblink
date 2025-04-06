@@ -1,16 +1,20 @@
 const Agenda = require("agenda");
+require("dotenv").config();
 
-let agenda;
+const agenda = new Agenda({
+  db: {
+    address: process.env.MONGO_URI,
+    collection: "agendaJobs", // optional, default is 'agendaJobs'
+  },
+  processEvery: "30 seconds", // checks for new jobs every 30s
+});
 
-const initAgenda = async () => {
-  agenda = new Agenda({
-    db: { address: process.env.MONGO_URI, collection: "jobs" },
-  });
-  await agenda.start();
-  console.log("✅ Agenda Started");
-  return agenda;
-};
+agenda.on("ready", () => {
+  console.log("✅ Agenda is connected to MongoDB");
+});
 
-const getAgenda = () => agenda;
+agenda.on("error", (err) => {
+  console.error("❌ Agenda connection error:", err);
+});
 
-module.exports = { initAgenda, getAgenda };
+module.exports = agenda;

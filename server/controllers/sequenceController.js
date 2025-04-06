@@ -1,6 +1,6 @@
 const Node = require("../models/node");
 const Sequence = require("../models/sequenceSchema");
-const { getAgenda } = require("../config/agenda");
+const agenda = require("../config/agenda");
 
 // get all sequences
 const getAllSequences = async (req, res) => {
@@ -80,27 +80,36 @@ const deleteSequence = async (req, res) => {
 };
 
 const addNodeToSequence = async (req, res) => {
-  const { id: sequenceId } = req.params;
-  const { type, data } = req.body;
   try {
-    const node = await Node.create({
+    const { id: sequenceId } = req.params;
+    const { type, data } = req.body;
+
+    // Create new node
+    const newNode = await Node.create({
+      sequenceId,
       type,
-      sequenceId,
       data,
+      nextNodeId: null,
     });
-    const sequence = await Sequence.findByIdAndUpdate(
-      sequenceId,
-      { $push: { nodes: node._id } },
-      { new: true }
-    );
-    return res.status(201).json({ node, sequence });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+
+    // Find last node in the chain
+    const lastNode = await Node.findOne({ sequenceId, nextNodeId: null }).sort({
+      createdAt: -1,
+    });
+
+    if (lastNode) {
+      // Update previous last node to point to the new one
+      lastNode.nextNodeId = newNode._id;
+      await lastNode.save();
+    }
+
+    res.status(201).json(newNode);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
 const startSequence = async (req, res) => {
-  const agenda = getAgenda();
   try {
     const sequenceId = req.params.id;
     const nodes = await Node.find({ sequenceId }).sort("createdAt");
