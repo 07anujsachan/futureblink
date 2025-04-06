@@ -16,7 +16,11 @@ router.post("/schedule-emails", async (req, res) => {
     console.log("📩 Scheduling email for:", to, "with delay:", delay);
 
     // Schedule email
-    await agenda.schedule("in 1 hour", "send scheduled email", { to, subject, text });
+    await agenda.schedule("in 5 seconds", "send scheduled email", {
+      to,
+      subject,
+      text,
+    });
 
     console.log("✅ Email scheduled successfully");
     res.json({ message: `📧 Email scheduled for ${to} after ${delay}` });
