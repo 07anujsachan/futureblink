@@ -15,9 +15,11 @@ const getAllSequences = async (req, res) => {
 const createSequence = async (req, res) => {
   const sequence = new Sequence(req.body);
   try {
-    const node = await Node.create({
+    const savedSequence = await sequence.save();
+
+    const leadSourceNode = await Node.create({
       type: "lead-source",
-      sequenceId: sequence._id,
+      sequenceId: savedSequence._id,
       data: {
         label: "Lead Source",
         emails: [],
@@ -25,14 +27,71 @@ const createSequence = async (req, res) => {
         body: "",
         delayTime: 0,
       },
+      nextNodeId: null,
     });
-    sequence.nodes.push(node._id);
-    const savedSequence = await sequence.save();
-    return res.status(201).json(savedSequence);
+
+    const addNodeButton = await Node.create({
+      type: "add-node-button",
+      sequenceId: savedSequence._id,
+      data: { label: "+" },
+      nextNodeId: null,
+    });
+
+    leadSourceNode.nextNodeId = addNodeButton._id;
+    await leadSourceNode.save();
+
+    savedSequence.nodes.push(leadSourceNode._id, addNodeButton._id);
+    await savedSequence.save();
+
+    const finalSequence = await Sequence.findById(savedSequence._id).populate("nodes");
+
+    return res.status(201).json(finalSequence);
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
 };
+
+
+const addNodeToSequence = async (req, res) => {
+  try {
+    const { id: sequenceId } = req.params;
+    const { type, data } = req.body;
+
+    const addNodeButton = await Node.findOne({
+      sequenceId,
+      type: "add-node-button",
+    });
+
+    const prevNode = await Node.findOne({
+      sequenceId,
+      nextNodeId: addNodeButton._id,
+    });
+
+    const newNode = await Node.create({
+      sequenceId,
+      type,
+      data,
+      nextNodeId: addNodeButton._id, // New node will point to addNodeButton
+    });
+
+    if (prevNode) {
+      prevNode.nextNodeId = newNode._id;
+      await prevNode.save();
+    }
+
+    const updatedSequence = await Sequence.findByIdAndUpdate(
+      sequenceId,
+      { $push: { nodes: newNode._id } },
+      { new: true }
+    ).populate("nodes");
+
+    res.status(201).json(updatedSequence);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 
 const getSequenceDetails = async (req, res) => {
   const { id } = req.params;
@@ -79,35 +138,9 @@ const deleteSequence = async (req, res) => {
   }
 };
 
-const addNodeToSequence = async (req, res) => {
-  try {
-    const { id: sequenceId } = req.params;
-    const { type, data } = req.body;
 
-    // Create new node
-    const newNode = await Node.create({
-      sequenceId,
-      type,
-      data,
-      nextNodeId: null,
-    });
 
-    // Find last node in the chain
-    const lastNode = await Node.findOne({ sequenceId, nextNodeId: null }).sort({
-      createdAt: -1,
-    });
 
-    if (lastNode) {
-      // Update previous last node to point to the new one
-      lastNode.nextNodeId = newNode._id;
-      await lastNode.save();
-    }
-
-    res.status(201).json(newNode);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 const startSequence = async (req, res) => {
   try {

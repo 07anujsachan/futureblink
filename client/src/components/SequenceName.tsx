@@ -1,31 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dialog } from "@headlessui/react";
+import objectId from 'bson-objectid';
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createSequence } from "../services";
 
-export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
+export const SequenceName = ({ isOpen, onClose }: any) => {
   const [name, setName] = useState("");
+  const navigate = useNavigate();
 
-  const createSequences = async () =>{
+  const createSequences = async () => {
     try {
+      const tempId = objectId().toHexString();
       const data = await createSequence({
+        _id: tempId,
         name: name,
-        status: "Draft", // Optional (defaults to 'Draft' if you don't pass it)
-        nodes: ["605c3c1b8e620f23b8d4b5d1", "605c3c1b8e620f23b8d4b5d2"], 
-        currentNodeId: null, 
-        
+        status: "Draft",
+        nodes: ["605c3c1b8e620f23b8d4b5d1", "605c3c1b8e620f23b8d4b5d2"],
+        currentNodeId: null,
         lastExecutedNodeIndex: null,
-      
-      })
-   if(data){
-    onCreate( name)
-   } } catch (error) {
-       console.log(error);
-        
+      });
+      if (data) {
+        if (!name) return;
+        navigate(`/builder/${tempId}?name=${encodeURIComponent(name)}`);
+      }
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-  }
-   
   return (
     <Dialog open={isOpen} onClose={onClose} className="fixed z-50 inset-0">
       <div className="flex items-center justify-center min-h-screen bg-black/50">
@@ -33,7 +36,9 @@ export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
           <Dialog.Title className="text-2xl font-bold">
             Create a Sequence from Scratch
           </Dialog.Title>
-          <p>Create a new sequence from scratch with multiple building blocks.</p>
+          <p>
+            Create a new sequence from scratch with multiple building blocks.
+          </p>
 
           <input
             type="text"
@@ -44,10 +49,7 @@ export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
           />
 
           <div className="flex justify-end gap-3 pt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded"
-            >
+            <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
               Back
             </button>
             <button
@@ -63,4 +65,3 @@ export const SequenceName  = ({ isOpen, onClose, onCreate }: any) => {
     </Dialog>
   );
 };
-

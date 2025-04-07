@@ -33,11 +33,13 @@ agenda.define("send-cold-email", async (job) => {
 
     if (nextNode.type === "delay") {
       // Wait for delayTime before moving to next node
-      const delayMinutes = nextNode.data.delayTime || 5;
-      await agenda.schedule(`${delayMinutes} minutes`, "send-cold-email", {
+      const delay = nextNode.data.delayTime || "5 minutes";
+      console.log(delay);
+      
+      await agenda.schedule(`${delay}`, "send-cold-email", {
         nodeId: nextNode.nextNodeId,
       });
-      console.log(`⏳ Waiting ${delayMinutes} min before next node`);
+      console.log(`⏳ Waiting ${delay} min before next node`);
     } else {
       // Immediately trigger the next node
       await agenda.now("send-cold-email", {

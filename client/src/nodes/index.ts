@@ -1,7 +1,7 @@
 import type { NodeTypes } from '@xyflow/react';
 
 import { v4 as uuidv4 } from 'uuid';
-import AddNodeButton from './AddNewNode';
+import { AddNodeButton } from './AddNewNode';
 import { PositionLoggerNode } from './PositionLoggerNode';
 import { AppNode } from './types';
 
@@ -29,3 +29,5 @@ export const nodeTypes = {
   'add-node': AddNodeButton,
 
 } satisfies NodeTypes;
+
+

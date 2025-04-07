@@ -108,11 +108,6 @@ const Dashboard = () => {
       <SequenceName
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onCreate={(name: string) => {
-          if (!name) return;
-          const tempId = crypto.randomUUID();
-          navigate(`/builder/${tempId}?name=${encodeURIComponent(name)}`);
-        }}
       />
     </div>
   );

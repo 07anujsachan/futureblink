@@ -2,19 +2,40 @@
 import { useState } from "react";
 import { addNodeToSequence } from "../services";
 
-const ColdEmailModal = ({ isOpen, onClose, seqId, emails }: any) => {
+const ColdEmailModal = ({ isOpen, onClose, seqId, emails, setNodes }: any) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
    console.log(seqId);
     
-  const handleAddNode = async (type: any, data: any) => {
+   const handleAddNode = async (type: any, data: any) => {
     try {
       const newNode = await addNodeToSequence(seqId, { type, data });
+  
       console.log("Node Added Successfully:", newNode);
+  
+      setNodes((prev:any) => {
+        const lastNode = prev[prev.length - 1];
+  
+        return [
+          ...prev,
+          {
+            id: newNode._id,
+            type: type,
+            position: {
+              x: lastNode?.position?.x || 0,
+              y: (lastNode?.position?.y || 0) + 100,
+            },
+            data: data,
+          },
+        ];
+      });
+  
+      onClose();
     } catch (err) {
       console.error("Failed to add node:", err);
     }
   };
+  
 
   if (!isOpen) return null;
 
@@ -24,7 +45,8 @@ const ColdEmailModal = ({ isOpen, onClose, seqId, emails }: any) => {
         <h2 className="text-2xl font-semibold mt-2 ">Create Cold Email</h2>
         <hr className="text-gray-300 my-4" />
         <form
-          onSubmit={() =>
+          onSubmit={(e) =>{
+           e.preventDefault()
             handleAddNode("cold-email", {
               label: "Email",
               emails: emails,
@@ -32,7 +54,7 @@ const ColdEmailModal = ({ isOpen, onClose, seqId, emails }: any) => {
               body: String,
               delayTime: Number,
             })
-          }
+           } }
         >
           <div className="flex flex-col gap-2">
             <label className="text-xl text-black">Subject:</label>

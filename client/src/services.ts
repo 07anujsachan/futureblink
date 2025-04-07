@@ -44,6 +44,16 @@ export const createSequence = async (sequenceData: any) => {
       
     }
   };
+  export const startSequence = async (sequenceId:any) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/sequences/${sequenceId}/start`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      
+    }
+  };
+
   
 
   export const getSequenceById = async (sequenceId: any ) => {

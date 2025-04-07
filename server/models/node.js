@@ -9,7 +9,7 @@ const NodeSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["lead-source", "cold-email", "delay"],
+      enum: ["lead-source", "cold-email", "delay", "add-node-button"],
       required: true,
     },
     data: {
@@ -17,7 +17,7 @@ const NodeSchema = new Schema(
       emails: [String],
       subject: String,
       body: String,
-      delayTime: Number,
+      delayTime: String,
     },
     nextNodeId: { type: String, default: null },
   },
