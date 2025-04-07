@@ -18,7 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AddBlockModal from "../components/AddBlockModal";
 import { Header } from "../components/Header";
 import { LeadSourceModal } from "../components/LeadSourceModal";
-import { initialNodes } from "../nodes";
+import { initialNodes, nodeTypes } from "../nodes";
 import { AppNode } from "../nodes/types";
 import { getSequenceById, startSequence } from "../services";
 import createEdgesFromNodes from "../utils/generateEdges";
@@ -176,6 +176,7 @@ const navigate = useNavigate()
           onConnect={onConnect}
           onNodeClick={handleNodeClick}
           fitView
+          nodeTypes={nodeTypes}
           style={{
             height: "72vh",
             border: "1px solid rgb(230, 230, 230)",
