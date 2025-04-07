@@ -2,40 +2,24 @@
 import { useState } from "react";
 import { addNodeToSequence } from "../services";
 
-const ColdEmailModal = ({ isOpen, onClose, seqId, emails, setNodes }: any) => {
+const ColdEmailModal = ({ isOpen, onClose, seqId, getSequence, activeSequence }: any) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-   console.log(seqId);
+   console.log(activeSequence.emails);
     
    const handleAddNode = async (type: any, data: any) => {
     try {
       const newNode = await addNodeToSequence(seqId, { type, data });
   
       console.log("Node Added Successfully:", newNode);
-  
-      setNodes((prev:any) => {
-        const lastNode = prev[prev.length - 1];
-  
-        return [
-          ...prev,
-          {
-            id: newNode._id,
-            type: type,
-            position: {
-              x: lastNode?.position?.x || 0,
-              y: (lastNode?.position?.y || 0) + 100,
-            },
-            data: data,
-          },
-        ];
-      });
+    getSequence()
   
       onClose();
     } catch (err) {
       console.error("Failed to add node:", err);
     }
   };
-  
+
 
   if (!isOpen) return null;
 
@@ -49,10 +33,10 @@ const ColdEmailModal = ({ isOpen, onClose, seqId, emails, setNodes }: any) => {
            e.preventDefault()
             handleAddNode("cold-email", {
               label: "Email",
-              emails: emails,
-              subject: String,
-              body: String,
-              delayTime: Number,
+              emails: activeSequence.emails,
+              subject: subject,
+              body: body,
+              delayTime: null,
             })
            } }
         >
@@ -75,7 +59,7 @@ const ColdEmailModal = ({ isOpen, onClose, seqId, emails, setNodes }: any) => {
               required
               placeholder="Email Body"
               className="border border-black text-black placeholder-gray-400 p-2 rounded-md focus:outline-none focus:border-blue-500 resize-none mt-1"
-              rows={6} // optional: controls height
+              rows={6}
             />
           </div>
 

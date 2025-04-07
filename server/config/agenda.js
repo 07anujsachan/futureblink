@@ -4,9 +4,9 @@ require("dotenv").config();
 const agenda = new Agenda({
   db: {
     address: process.env.MONGO_URI,
-    collection: "agendaJobs", // optional, default is 'agendaJobs'
+    collection: "agendaJobs",
   },
-  processEvery: "30 seconds", // checks for new jobs every 30s
+  processEvery: "30 seconds", 
 });
 
 agenda.on("ready", () => {

@@ -20,7 +20,7 @@ import { Header } from "../components/Header";
 import { LeadSourceModal } from "../components/LeadSourceModal";
 import { initialNodes, nodeTypes } from "../nodes";
 import { AppNode } from "../nodes/types";
-import { getSequenceById, startSequence } from "../services";
+import { addMailsToSequence, getSequenceById, startSequence } from "../services";
 import { createEdgesFromNodes } from "../utils/generateEdges";
 
 export default function SequenceBuilderPage() {
@@ -51,7 +51,7 @@ const navigate = useNavigate()
       ...addButtonNode,
       position: {
         x: lastNode?.position?.x || 250,
-        y: (lastNode?.position?.y || 100) + 100, // 150px gap below last node
+        y: (lastNode?.position?.y || 100) + 100,
       },
     };
 
@@ -67,7 +67,7 @@ const navigate = useNavigate()
      console.log("started");
      
   
-      navigate("/dashboard");  // Redirect to Dashboard
+      navigate("/dashboard"); 
   
     } catch (err) {
       console.error(err);
@@ -80,7 +80,7 @@ const navigate = useNavigate()
       setActiveSequence(data?.sequence);
   
       const nodesFromBackend = data?.sequence?.nodes?.map((node: any, index: any) => ({
-        id: node._id || node.id, // safe mapping
+        id: node._id || node.id,
         type: node.type,
         position: { x: 280 , y: 200 * index }, 
         data: {
@@ -105,19 +105,18 @@ const navigate = useNavigate()
     getSequence();
   }, []);
 
-  const handleNodeClick = (event: any, node: any) => {
+  const handleNodeClick = (node: any) => {
     setSelectedNodeId(node.id);
   };
   const activeNode = nodes.find((node: any) => node.id === selectedNodeId);
 
-  const handleSaveEmails = () => {
+  const handleSaveEmails = async () => {
     let updatedEmails: string[] = [];
-
+  
     const updatedNodes = nodes.map((node) => {
       if (node.id === selectedNodeId && node.type === "lead-source") {
         const currentEmails = emails.split(",").map((e) => e.trim());
-        updatedEmails = [...allEmails, ...currentEmails]; // merge previous + current emails
-
+        updatedEmails = [...allEmails, ...currentEmails]; 
         return {
           ...node,
           data: {
@@ -127,13 +126,21 @@ const navigate = useNavigate()
         };
       }
       return node;
+      
     });
+  
+    try {
+      await addMailsToSequence(id, updatedEmails);
+      setNodes(updatedNodes);
+      setAllEmails(updatedEmails);
+      setSelectedNodeId(null);
+      getSequence()
+    } catch (error) {
+      console.error(error);
 
-    setNodes(updatedNodes);
-    setAllEmails(updatedEmails); // Update your state here
-    setSelectedNodeId(null);
-    setEmails("");
+    }
   };
+  
 
   const renderNodes: AppNode[] = [...nodes];
   console.log(activeSequence);
@@ -141,7 +148,7 @@ const navigate = useNavigate()
   return (
     <div className="w-full h-screen flex flex-col">
       <Header />
-      {/* Top Action Bar */}
+
       <div className="w-full px-12 py-6 flex justify-between items-center">
         <h1 className="text-xl font-semibold">{activeSequence?.name}</h1>
 
@@ -162,7 +169,7 @@ const navigate = useNavigate()
         </div>
       </div>
 
-      {/* React Flow Canvas */}
+  
       <div className="flex-1 px-12 relative">
         <ReactFlow
           nodes={renderNodes}
@@ -190,18 +197,9 @@ const navigate = useNavigate()
           <Controls />
           <Background bgColor="#f2f2f2" />
 
-          {/* Floating Add Node Button */}
-          {/* <button
-            onClick={() => {
-              console.log("Open Add Node Modal");
-            }}
-            className="absolute  bg-blue-600 text-white text-2xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
-          >
-            +
-          </button> */}
         </ReactFlow>
       </div>
-      {activeNode?.data?.label === "Lead Source" && (
+      {activeNode?.data?.label === "Add Lead Source" && (
         <LeadSourceModal
           emails={emails}
           setEmails={setEmails}
@@ -216,6 +214,8 @@ const navigate = useNavigate()
           seqId={id}
           emails={allEmails}
           setNodes={setNodes}
+          activeSequence={activeSequence}
+          getSequence={getSequence}
         />
       )}
     </div>

@@ -14,7 +14,7 @@ const NodeSchema = new Schema(
     },
     data: {
       label: String,
-      // emails: [String],
+      emails: [String],
       subject: String,
       body: String,
       delayTime: String,

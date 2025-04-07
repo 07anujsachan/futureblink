@@ -16,7 +16,6 @@ var SequenceSchema = new Schema({
   ],
   emails: [String],
   currentNodeId: { type: String, default: null },
-  // createdBy: { type: String, required: true },
   lastExecutedNodeIndex: { type: Number, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

@@ -2,7 +2,7 @@ const Node = require("../models/node");
 const Sequence = require("../models/sequenceSchema");
 const agenda = require("../config/agenda");
 
-// get all sequences
+
 const getAllSequences = async (req, res) => {
   try {
     const sequences = await Sequence.find();
@@ -109,6 +109,21 @@ const addMailsToSequence = async (req, res) => {
     if (!sequence) {
       return res.status(404).json({ message: "Sequence not found" });
     }
+   
+   for (const node of sequence.nodes) {
+    if (node.type === "lead-source") {
+      const existingEmails = node.data?.emails || [];
+
+      const updatedEmails = [...new Set([...existingEmails, ...emails])];
+
+      node.data = {
+        ...node.data,
+        emails: updatedEmails,
+      };
+
+      await node.save();
+    }
+  }
 
     return res.status(200).json(sequence);
   } catch (error) {
@@ -170,7 +185,7 @@ const deleteSequence = async (req, res) => {
       return res.status(404).json({ message: "Sequence not found" });
     }
     await Node.deleteMany({ sequenceId: id });
-    // Delete all nodes associated with the sequence
+    
     return res.status(200).json({ message: "Sequence deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -186,7 +201,7 @@ const startSequence = async (req, res) => {
       return res.status(400).json({ error: "No nodes in this sequence" });
     }
 
-    // Find the first actionable node (e.g., 'cold-email' or 'delay')
+
     const startNode = nodes.find((node) =>
       ["cold-email", "delay"].includes(node.type)
     );
@@ -257,7 +272,7 @@ const deleteNode = async (req, res) => {
       });
     }
 
-    // Update previous node's nextNodeId if any
+
     const previousNode = await Node.findOne({ nextNodeId: nodeId });
     if (previousNode) {
       await Node.findByIdAndUpdate(previousNode._id, {
@@ -265,7 +280,7 @@ const deleteNode = async (req, res) => {
       });
     }
 
-    // Delete node
+
     await Node.findByIdAndDelete(nodeId);
 
     res.json({ message: "Node deleted and chain updated." });

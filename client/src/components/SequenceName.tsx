@@ -10,8 +10,9 @@ export const SequenceName = ({ isOpen, onClose }: any) => {
   const navigate = useNavigate();
 
   const createSequences = async () => {
+    const tempId = objectId().toHexString();
+    console.log(tempId)
     try {
-      const tempId = objectId().toHexString();
       const data = await createSequence({
         _id: tempId,
         name: name,

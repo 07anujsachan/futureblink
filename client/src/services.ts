@@ -4,9 +4,7 @@ const BASE_URL= "http://localhost:3000/api"
 export const getAllSequences = async () =>{
     try {
         const response = await axios.get(`${BASE_URL}/sequences`);
-        // if (!response.ok) {
-        //   throw new Error('Failed to fetch users');
-        // }
+
         return  response.data;
         
         
@@ -34,6 +32,15 @@ export const createSequence = async (sequenceData: any) => {
       throw error;
     }
   };
+  export const deleteNode = async (nodeId: any) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/sequences/node/${nodeId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting sequence:", error);
+      throw error;
+    }
+  };
    
   export const addNodeToSequence = async (sequenceId:any, nodeData:any) => {
     try {
@@ -42,6 +49,20 @@ export const createSequence = async (sequenceData: any) => {
     } catch (error) {
       console.log(error);
       
+    }
+  };
+
+  export const addMailsToSequence = async (sequenceId:any, emails:any) => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/sequences/${sequenceId}/add-emails`,
+        { emails }
+      );
+  
+      return res.data;
+    } catch (error) {
+      console.error('Error adding mails:', error);
+      throw error;
     }
   };
   export const startSequence = async (sequenceId:any) => {
@@ -65,12 +86,3 @@ export const createSequence = async (sequenceData: any) => {
       throw error;
     }
   };
-//   export const createDelayNode = async (delayData: any ) => {
-//     try {
-//       const response = await axios.post(`${BASE_URL}/sequences/${sequenceId}/node`, delayData);
-//       return response.data;
-//     } catch (error) {
-//       console.error("Error creating delay node:", error);
-//       throw error;
-//     }
-//   };

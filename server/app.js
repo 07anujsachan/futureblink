@@ -14,14 +14,14 @@ const connectDB = require("./config/database");
 dotenv.config();
 
 var app = express();
-// Allow all origins (development only)
+
 app.use(cors());
 
-// Or if you want to be more strict (optional)
+
 app.use(cors({
-  origin: 'http://localhost:5173', // your frontend
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // allowed methods
-  credentials: true, // if you're sending cookies or auth headers
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true,
 }));
 app.use(logger("dev"));
 app.use(express.json());

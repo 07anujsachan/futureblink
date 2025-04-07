@@ -2,13 +2,13 @@
 import { useState } from "react";
 import ColdEmailModal from "./ColdEmail";
 import Delay from "./Delay";
-const AddBlockModal = ({ onClose, seqId, emails, setNodes }: any) => {
+const AddBlockModal = ({ onClose, getSequence, seqId, emails, setNodes, activeSequence }: any) => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [showDelay, setShowDelay] = useState(false);
   return (
     <div className="fixed inset-0 bg-black/50 z-30 flex items-center justify-center">
       <div className="bg-white rounded-xl w-[800px] h-[600px]  p-6 relative">
-        {/* Close Button */}
+ 
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-red-400 hover:text-red-500 border-3 border-red-400 px-1 rounded-md"
@@ -16,7 +16,7 @@ const AddBlockModal = ({ onClose, seqId, emails, setNodes }: any) => {
           ❌
         </button>
 
-        {/* Heading */}
+
         <h2 className="text-xl font-semibold my-4">
           Add Blocks{" "}
           <span className="border-3  rounded-full px-[6px] text-xl font-bold">
@@ -29,7 +29,7 @@ const AddBlockModal = ({ onClose, seqId, emails, setNodes }: any) => {
         </p>
         <hr className=" text-gray-300" />
         <div className="flex justify-between">
-          {/* Outreach Section */}
+        
           <div className="mb-3 w-full mr-3">
             <h3 className="text-xl  font-semibold text-gray-700 mb-3 mt-6">
               Outreach
@@ -52,7 +52,7 @@ const AddBlockModal = ({ onClose, seqId, emails, setNodes }: any) => {
             </div>
           </div>
 
-          {/* Condition Section */}
+
           <div className="w-full ">
             <h3 className="text-xl  font-semibold text-gray-700 mb-3 mt-6">
               Conditions
@@ -82,6 +82,7 @@ const AddBlockModal = ({ onClose, seqId, emails, setNodes }: any) => {
           setNodes={setNodes}
           isOpen={showDelay}
           seqId={seqId}
+          getSequence={getSequence}
         />
       )}
       {isEmailModalOpen && (
@@ -91,6 +92,8 @@ const AddBlockModal = ({ onClose, seqId, emails, setNodes }: any) => {
           seqId={seqId}
           onClose={() => setIsEmailModalOpen(false)}
           setNodes={setNodes}
+          activeSequence={activeSequence}
+          getSequence={getSequence}
         />
       )}
     </div>

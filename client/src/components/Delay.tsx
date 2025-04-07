@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { X } from "lucide-react"; // optional, nice X icon
+import { X } from "lucide-react";
 import { useState } from "react";
 import { addNodeToSequence } from "../services";
 
 const Delay = ({
   onClose,
   isOpen,
-  setNodes,
+  getSequence,
   seqId,
 }: any) => {
   const [delayNumber, setDelayNumber] = useState("");
@@ -17,24 +17,7 @@ const Delay = ({
       const newNode = await addNodeToSequence(seqId, { type, data });
 
       console.log("Node Added Successfully:", newNode);
-
-      setNodes((prev: any) => {
-        const lastNode = prev[prev.length - 1];
-
-        return [
-          ...prev,
-          {
-            id: newNode._id,
-            type: type,
-            position: {
-              x: lastNode?.position?.x || 0,
-              y: (lastNode?.position?.y || 0) + 50,
-            },
-            data: data,
-          },
-        ];
-      });
-
+getSequence()
       onClose();
     } catch (err) {
       console.error("Failed to add node:", err);
@@ -44,7 +27,7 @@ const Delay = ({
   return (
     <div className="fixed inset-0 bg-black/50  flex justify-center items-center z-50">
       <div className="relative  bg-gray-100 p-6 rounded-lg shadow-lg w-[800px] h-[600px]">
-        {/* Cross button */}
+
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-black border-3 rounded-md border-black hover:border-red-500 hover:text-red-500 font-semibold"

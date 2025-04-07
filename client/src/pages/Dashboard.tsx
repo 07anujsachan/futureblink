@@ -10,10 +10,6 @@ const Dashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [sequences, setSequences] = useState([]);
   const navigate = useNavigate();
-  // const sequences = [
-  //   { id: "1", name: "Welcome Sequence", createdAt: "2025-04-05" },
-  //   { id: "2", name: "Lead Nurturing", createdAt: "2025-04-04" },
-  // ];
   const fetchSequences = async () => {
     try {
       const data = await getAllSequences();
@@ -55,7 +51,6 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Sequence List */}
         <div className="bg-white border border-neutral-200 shadow rounded-lg">
           {sequences.length === 0 ? (
             <p className="text-gray-500 text-center py-10">

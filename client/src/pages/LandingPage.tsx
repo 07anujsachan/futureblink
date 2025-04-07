@@ -22,7 +22,7 @@ const LandingPage = () => {
         </Link>
       </div>
 
-      {/* Footer */}
+
       <footer className="text-center text-gray-500 py-6">
         &copy; {new Date().getFullYear()} Future<span className="text-blue-500">Blink</span>. All rights reserved.
       </footer>

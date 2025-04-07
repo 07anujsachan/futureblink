@@ -16,7 +16,7 @@ module.exports = function defineEmailJob() {
     const sequence = await Sequence.findById(sequenceId);
     if (!sequence) return;
 
-    // If node is cold-email, send emails from sequence
+
     if (node.type === "cold-email") {
       console.log("📬 Cold Email Node Triggered");
 
@@ -43,12 +43,12 @@ module.exports = function defineEmailJob() {
       }
     }
 
-    // Update currentNodeId
+
     await Sequence.findByIdAndUpdate(sequenceId, {
       currentNodeId: node._id,
     });
 
-    // Proceed to next node
+
     if (node.nextNodeId) {
       const nextNode = await Node.findById(node.nextNodeId);
       if (!nextNode) return;
