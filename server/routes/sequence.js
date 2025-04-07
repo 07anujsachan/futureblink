@@ -10,6 +10,8 @@ const {
   startSequence,
   pauseSequence,
   resumeSequence,
+  addMailsToSequence,
+  deleteNode,
 } = require("../controllers/SequenceController");
 
 var router = express.Router();
@@ -33,6 +35,9 @@ router.delete("/:id", deleteSequence);
 // add node to sequence
 router.post("/:id/node", addNodeToSequence);
 
+// route to add emails to sequence
+router.post("/:id/add-emails", addMailsToSequence);
+
 //start the sequence nodes
 router.post("/:id/start", startSequence);
 
@@ -42,5 +47,8 @@ router.post("/:id/pause", pauseSequence);
 // resume sequence
 
 router.post("/:id/resume", resumeSequence);
+
+// delete sequence
+router.delete("/node/:id", deleteNode);
 
 module.exports = router;

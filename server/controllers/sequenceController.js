@@ -43,14 +43,16 @@ const createSequence = async (req, res) => {
     savedSequence.nodes.push(leadSourceNode._id, addNodeButton._id);
     await savedSequence.save();
 
-    const finalSequence = await Sequence.findById(savedSequence._id).populate("nodes");
+    const finalSequence = await Sequence.findById(savedSequence._id).populate(
+      "nodes"
+    );
 
     return res.status(201).json(finalSequence);
   } catch (error) {
+    console.log(error);
     return res.status(400).json({ message: error.message });
   }
 };
-
 
 const addNodeToSequence = async (req, res) => {
   try {
@@ -87,11 +89,32 @@ const addNodeToSequence = async (req, res) => {
 
     res.status(201).json(updatedSequence);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: err.message });
   }
 };
 
+const addMailsToSequence = async (req, res) => {
+  try {
+    const { id: sequenceId } = req.params;
+    const { emails } = req.body;
 
+    const sequence = await Sequence.findByIdAndUpdate(
+      sequenceId,
+      {
+        $addToSet: { emails: { $each: emails } },
+      },
+      { new: true }
+    ).populate("nodes");
+    if (!sequence) {
+      return res.status(404).json({ message: "Sequence not found" });
+    }
+
+    return res.status(200).json(sequence);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 const getSequenceDetails = async (req, res) => {
   const { id } = req.params;
@@ -102,7 +125,6 @@ const getSequenceDetails = async (req, res) => {
       return res.status(404).json({ message: "Sequence not found" });
     }
 
-    
     const addNodeButtonNode = sequence.nodes.find(
       (node) => node.type === "add-node-button"
     );
@@ -111,7 +133,6 @@ const getSequenceDetails = async (req, res) => {
       (node) => node.type !== "add-node-button"
     );
 
-    
     let finalNodes = [...otherNodes];
     if (addNodeButtonNode) finalNodes.push(addNodeButtonNode);
 
@@ -156,27 +177,40 @@ const deleteSequence = async (req, res) => {
   }
 };
 
-
-
-
-
 const startSequence = async (req, res) => {
   try {
     const sequenceId = req.params.id;
     const nodes = await Node.find({ sequenceId }).sort("createdAt");
 
-    if (nodes.length === 0) return res.status(400).json({ error: "No nodes" });
+    if (nodes.length === 0) {
+      return res.status(400).json({ error: "No nodes in this sequence" });
+    }
+
+    // Find the first actionable node (e.g., 'cold-email' or 'delay')
+    const startNode = nodes.find((node) =>
+      ["cold-email", "delay"].includes(node.type)
+    );
+
+    if (!startNode) {
+      return res
+        .status(400)
+        .json({ error: "No executable node found to start" });
+    }
 
     await Sequence.findByIdAndUpdate(sequenceId, {
       status: "Active",
-      currentNodeId: nodes[0]._id,
-      lastExecutedNodeIndex: 0,
+      currentNodeId: startNode._id,
+      lastExecutedNodeIndex: nodes.findIndex((n) =>
+        n._id.equals(startNode._id)
+      ),
     });
 
-    await agenda.now("send-cold-email", { nodeId: nodes[0]._id });
+    await agenda.now("send-cold-email", { nodeId: startNode._id });
 
-    res.json({ message: "Sequence started" });
+    console.log(`🚀 Sequence started at node: ${startNode._id}`);
+    res.json({ message: "Sequence started successfully" });
   } catch (err) {
+    console.error("❌ Error in startSequence:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -207,6 +241,39 @@ const resumeSequence = async (req, res) => {
   }
 };
 
+const deleteNode = async (req, res) => {
+  try {
+    const nodeId = req.params.id;
+
+    const node = await Node.findById(nodeId);
+    if (!node) {
+      return res.status(404).json({ message: "Node not found" });
+    }
+
+    // Prevent deletion of special nodes
+    if (["Add Lead Source", "+"].includes(node.data?.label)) {
+      return res.status(400).json({
+        message: `Cannot delete protected node (${node.data.label}).`,
+      });
+    }
+
+    // Update previous node's nextNodeId if any
+    const previousNode = await Node.findOne({ nextNodeId: nodeId });
+    if (previousNode) {
+      await Node.findByIdAndUpdate(previousNode._id, {
+        nextNodeId: node.nextNodeId || null,
+      });
+    }
+
+    // Delete node
+    await Node.findByIdAndDelete(nodeId);
+
+    res.json({ message: "Node deleted and chain updated." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllSequences,
   createSequence,
@@ -217,4 +284,6 @@ module.exports = {
   startSequence,
   pauseSequence,
   resumeSequence,
+  addMailsToSequence,
+  deleteNode,
 };

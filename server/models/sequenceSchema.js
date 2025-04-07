@@ -14,6 +14,7 @@ var SequenceSchema = new Schema({
       ref: "Node",
     },
   ],
+  emails: [String],
   currentNodeId: { type: String, default: null },
   // createdBy: { type: String, required: true },
   lastExecutedNodeIndex: { type: Number, default: null },

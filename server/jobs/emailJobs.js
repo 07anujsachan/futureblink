@@ -3,55 +3,74 @@ const Node = require("../models/node");
 const Sequence = require("../models/sequenceSchema");
 const { sendEmail } = require("../services/emailServices");
 
-agenda.define("send-cold-email", async (job) => {
-  const { nodeId } = job.attrs.data;
-  const node = await Node.findById(nodeId);
-  if (!node) return;
+module.exports = function defineEmailJob() {
+  agenda.define("send-cold-email", async (job) => {
+    console.log("🚀 Agenda job picked up!");
+    console.log("📦 Job Data:", job.attrs.data);
+    const { nodeId } = job.attrs.data;
 
-  const sequenceId = node.sequenceId;
+    const node = await Node.findById(nodeId);
+    if (!node) return;
 
-  if (node.type === "cold-email" && node.data.emails) {
-    for (const email of node.data.emails) {
-      try {
-        await sendEmail(email, node.data.subject, node.data.body);
-        console.log(`✅ Email sent to ${email}`);
-      } catch (err) {
-        console.error(`❌ Failed to send email to ${email}`, err.message);
+    const sequenceId = node.sequenceId;
+    const sequence = await Sequence.findById(sequenceId);
+    if (!sequence) return;
+
+    // If node is cold-email, send emails from sequence
+    if (node.type === "cold-email") {
+      console.log("📬 Cold Email Node Triggered");
+
+      const sequence = await Sequence.findById(sequenceId);
+      if (!sequence) {
+        console.warn("❌ Sequence not found");
+        return;
+      }
+
+      console.log("📧 Emails in sequence:", sequence.emails);
+
+      if (sequence.emails?.length) {
+        for (const email of sequence.emails) {
+          try {
+            console.log(`🚀 Sending email to ${email}`);
+            await sendEmail(email, node.data.subject, node.data.body);
+            console.log(`✅ Email sent to ${email}`);
+          } catch (err) {
+            console.error(`❌ Failed to send email to ${email}`, err.message);
+          }
+        }
+      } else {
+        console.warn("⚠️ No emails found in sequence.emails");
       }
     }
-  }
 
-  // Update currentNodeId in Sequence
-  await Sequence.findByIdAndUpdate(sequenceId, {
-    currentNodeId: node._id,
-  });
-
-  // Proceed to next node
-  if (node.nextNodeId) {
-    const nextNode = await Node.findById(node.nextNodeId);
-    if (!nextNode) return;
-
-    if (nextNode.type === "delay") {
-      // Wait for delayTime before moving to next node
-      const delay = nextNode.data.delayTime || "5 minutes";
-      console.log(delay);
-      
-      await agenda.schedule(`${delay}`, "send-cold-email", {
-        nodeId: nextNode.nextNodeId,
-      });
-      console.log(`⏳ Waiting ${delay} min before next node`);
-    } else {
-      // Immediately trigger the next node
-      await agenda.now("send-cold-email", {
-        nodeId: nextNode._id,
-      });
-    }
-  } else {
-    // No next node → complete sequence
+    // Update currentNodeId
     await Sequence.findByIdAndUpdate(sequenceId, {
-      status: "Completed",
-      currentNodeId: null,
+      currentNodeId: node._id,
     });
-    console.log("🎉 Sequence completed");
-  }
-});
+
+    // Proceed to next node
+    if (node.nextNodeId) {
+      const nextNode = await Node.findById(node.nextNodeId);
+      if (!nextNode) return;
+
+      if (nextNode.type === "delay") {
+        const delay = nextNode.data.delayTime || "1 minute";
+        console.log(`⏳ Waiting ${delay} before next node`);
+
+        await agenda.schedule(`${delay}`, "send-cold-email", {
+          nodeId: nextNode._id,
+        });
+      } else {
+        await agenda.now("send-cold-email", {
+          nodeId: nextNode._id,
+        });
+      }
+    } else {
+      await Sequence.findByIdAndUpdate(sequenceId, {
+        status: "Completed",
+        currentNodeId: null,
+      });
+      console.log("🎉 Sequence completed");
+    }
+  });
+};
