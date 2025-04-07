@@ -6,13 +6,13 @@ export const DelayNode = ({ data }: any) => {
 
   return (
     <div
-      className="relative bg-white rounded-lg w-80 shadow-md p-4 flex items-center gap-4 border hover:border-blue-400 transition-all"
+      className="relative bg-white rounded-lg w-80  p-4 flex items-center gap-4 shadow-md hover:border-blue-400 transition-all"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {/* Cross icon */}
       {hovered && (
-        <button className="absolute top-2 right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full">
+        <button className="absolute bottom-18 left-77 p-1 bg-red-100 hover:bg-red-200 rounded-lg border border-red-500">
           <X size={16} className="text-red-500" />
         </button>
       )}

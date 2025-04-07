@@ -12,7 +12,7 @@ export const ColdEmailNode = ({ data }: any) => {
     >
       {/* Cross icon */}
       {hovered && (
-        <button className="absolute top-2 right-2 p-1 bg-red-100 hover:bg-red-200 rounded-full">
+        <button className="absolute bottom-23 left-75 p-1 bg-red-100 hover:bg-red-200 rounded-lg border border-red-500">
           <X size={16} className="text-red-500" />
         </button>
       )}
