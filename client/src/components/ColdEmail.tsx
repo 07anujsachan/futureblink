@@ -2,15 +2,15 @@
 import { useState } from "react";
 import { addNodeToSequence } from "../services";
 
-const ColdEmailModal = ({ isOpen, onClose, seqId }: any) => {
+const ColdEmailModal = ({ isOpen, onClose, seqId, emails }: any) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-
+   console.log(seqId);
+    
   const handleAddNode = async (type: any, data: any) => {
     try {
       const newNode = await addNodeToSequence(seqId, { type, data });
       console.log("Node Added Successfully:", newNode);
-      // add to reactflow nodes here
     } catch (err) {
       console.error("Failed to add node:", err);
     }
@@ -27,7 +27,7 @@ const ColdEmailModal = ({ isOpen, onClose, seqId }: any) => {
           onSubmit={() =>
             handleAddNode("cold-email", {
               label: "Email",
-              emails: "",
+              emails: emails,
               subject: String,
               body: String,
               delayTime: Number,

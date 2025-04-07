@@ -42,8 +42,8 @@ const getSequenceDetails = async (req, res) => {
     if (!sequence) {
       return res.status(404).json({ message: "Sequence not found" });
     }
-    const nodes = await Node.find({ sequenceId: id });
-    return res.status(200).json({ sequence, nodes });
+    // const nodes = await Node.find({ sequenceId: id });
+    return res.status(200).json({ sequence });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

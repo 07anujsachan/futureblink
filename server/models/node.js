@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose");
 const NodeSchema = new Schema(
   {
     sequenceId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Sequence",
       required: true,
     },

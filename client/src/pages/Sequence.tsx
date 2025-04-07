@@ -33,6 +33,8 @@ export default function SequenceBuilderPage() {
   const [emails, setEmails] = useState<string>("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [activeSequence, setActiveSequence] = useState(null);
+  const [allEmails, setAllEmails] = useState<string[]>([]);
+
 
   const onConnect: OnConnect = (connection) =>
     setEdges((eds) => addEdge(connection, eds));
@@ -55,26 +57,32 @@ export default function SequenceBuilderPage() {
   };
   const activeNode = nodes.find((node: any) => node.id === selectedNodeId);
 
-  console.log(emails);
- 
+
   const handleSaveEmails = () => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === selectedNodeId && node.type === "lead-source") {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              emails: emails.split(",").map((e) => e.trim()),
-            },
-          };
-        }
-        return node;
-      })
-    );
+    let updatedEmails: string[] = [];
+  
+    const updatedNodes = nodes.map((node) => {
+      if (node.id === selectedNodeId && node.type === "lead-source") {
+        const currentEmails = emails.split(",").map((e) => e.trim());
+        updatedEmails = [...allEmails, ...currentEmails]; // merge previous + current emails
+  
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            emails: currentEmails,
+          },
+        };
+      }
+      return node;
+    });
+  
+    setNodes(updatedNodes);
+    setAllEmails(updatedEmails);  // Update your state here
     setSelectedNodeId(null);
     setEmails("");
   };
+  
 
   const renderNodes: AppNode[] = [...nodes];
 
@@ -147,6 +155,7 @@ export default function SequenceBuilderPage() {
           onSelect={() => console.log("hello")}
           onClose={() => setSelectedNodeId(null)}
           seqId={id}
+          emails={allEmails}
         />
       )}
     </div>

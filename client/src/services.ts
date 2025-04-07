@@ -37,7 +37,7 @@ export const createSequence = async (sequenceData: any) => {
    
   export const addNodeToSequence = async (sequenceId:any, nodeData:any) => {
     try {
-      const response = await axios.post(`${BASE_URL}/sequence/${sequenceId}/node`, nodeData);
+      const response = await axios.post(`${BASE_URL}/sequences/${sequenceId}/node`, nodeData);
       return response.data;
     } catch (error) {
       console.log(error);

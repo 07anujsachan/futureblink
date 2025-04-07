@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import ColdEmailModal from "./ColdEmail";
- import Delay from "./Delay";
-const AddBlockModal = ({ onClose, onSelect, seqId }: any) => {
+import Delay from "./Delay";
+const AddBlockModal = ({ onClose, onSelect, seqId, emails }: any) => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [showDelay, setShowDelay] = useState(false);
   return (
-    <>
+
       <div className="fixed inset-0 bg-black/50 z-30 flex items-center justify-center">
         <div className="bg-white rounded-xl w-[800px] h-[600px]  p-6 relative">
           {/* Close Button */}
@@ -77,16 +77,10 @@ const AddBlockModal = ({ onClose, onSelect, seqId }: any) => {
             </div>
           </div>
         </div>
+        {showDelay && <Delay onClose={() => setShowDelay(false)} />}
+        {isEmailModalOpen && <ColdEmailModal emails={emails} isOpen={isEmailModalOpen} seqId={seqId} onClose={()=> setIsEmailModalOpen(false)}/>}
       </div>
-      {isEmailModalOpen && (
-        <ColdEmailModal
-          isOpen={isEmailModalOpen}
-          seqId={seqId}
-          onClose={() => setIsEmailModalOpen(false)}
-        />
-      )}
-       {showDelay && <Delay onClose={() => setShowDelay(false)} />}
-    </>
+
   );
 };
 

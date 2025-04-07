@@ -37,7 +37,6 @@ router.post("/:id/node", addNodeToSequence);
 router.post("/:id/start", startSequence);
 
 // pause sequence
-
 router.post("/:id/pause", pauseSequence);
 
 // resume sequence
