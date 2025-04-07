@@ -21,7 +21,7 @@ import { LeadSourceModal } from "../components/LeadSourceModal";
 import { initialNodes, nodeTypes } from "../nodes";
 import { AppNode } from "../nodes/types";
 import { getSequenceById, startSequence } from "../services";
-import createEdgesFromNodes from "../utils/generateEdges";
+import { createEdgesFromNodes } from "../utils/generateEdges";
 
 export default function SequenceBuilderPage() {
   const { id } = useParams();
@@ -74,32 +74,28 @@ const navigate = useNavigate()
     
     }
   };
-  
   const getSequence = async () => {
     try {
       const data = await getSequenceById(id);
       setActiveSequence(data?.sequence);
-
-      const nodesFromBackend = data?.sequence?.nodes?.map(
-        (node: any, index: any) => ({
-          id: node._id,
-          type: node.type,
-          position: { x: 250, y: index * 150 },
-          data: {
-            label: node.data.label,
-            emails: node.data.emails,
-            subject: node.data.subject,
-            body: node.data.body,
-            delayTime: node.data.delayTime,
-          },
-        })
-      );
-
-     setNodes([...nodesFromBackend]);
- 
-     const edges = createEdgesFromNodes(nodesFromBackend);
-     setEdges(edges);
-
+  
+      const nodesFromBackend = data?.sequence?.nodes?.map((node: any, index: any) => ({
+        id: node._id || node.id, // safe mapping
+        type: node.type,
+        position: { x: 280 , y: 200 * index }, 
+        data: {
+          label: node.data.label,
+          emails: node.data.emails,
+          subject: node.data.subject,
+          body: node.data.body,
+          delayTime: node.data.delayTime,
+        },
+      }));
+  
+      setNodes([...nodesFromBackend]);
+  
+      const edges = createEdgesFromNodes(nodesFromBackend);
+      setEdges(edges);
     } catch (error) {
       console.error(error);
     }
@@ -176,6 +172,13 @@ const navigate = useNavigate()
           onConnect={onConnect}
           onNodeClick={handleNodeClick}
           fitView
+          defaultEdgeOptions={{
+            type: 'straight',
+          }}
+          connectionLineStyle={{
+            stroke: 'gray',
+            strokeWidth: 2,
+          }}
           nodeTypes={nodeTypes}
           style={{
             height: "72vh",

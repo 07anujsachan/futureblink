@@ -1,3 +1,4 @@
+import { Handle, Position } from "@xyflow/react";
 import { Mail, X } from "lucide-react";
 import { useState } from "react";
 
@@ -32,6 +33,8 @@ export const ColdEmailNode = ({ data }: any) => {
           </span>
         </p>
       </div>
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Top} />
     </div>
   );
 };

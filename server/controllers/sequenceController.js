@@ -21,7 +21,7 @@ const createSequence = async (req, res) => {
       type: "lead-source",
       sequenceId: savedSequence._id,
       data: {
-        label: "Lead Source",
+        label: "Add Lead Source",
         emails: [],
         subject: "",
         body: "",
@@ -71,7 +71,7 @@ const addNodeToSequence = async (req, res) => {
       sequenceId,
       type,
       data,
-      nextNodeId: addNodeButton._id, // New node will point to addNodeButton
+      nextNodeId: addNodeButton._id,
     });
 
     if (prevNode) {
@@ -101,8 +101,26 @@ const getSequenceDetails = async (req, res) => {
     if (!sequence) {
       return res.status(404).json({ message: "Sequence not found" });
     }
-    // const nodes = await Node.find({ sequenceId: id });
-    return res.status(200).json({ sequence });
+
+    
+    const addNodeButtonNode = sequence.nodes.find(
+      (node) => node.type === "add-node-button"
+    );
+
+    const otherNodes = sequence.nodes.filter(
+      (node) => node.type !== "add-node-button"
+    );
+
+    
+    let finalNodes = [...otherNodes];
+    if (addNodeButtonNode) finalNodes.push(addNodeButtonNode);
+
+    return res.status(200).json({
+      sequence: {
+        ...sequence.toObject(),
+        nodes: finalNodes,
+      },
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

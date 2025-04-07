@@ -1,3 +1,4 @@
+import { Handle, Position } from "@xyflow/react";
 import { Clock, X } from "lucide-react";
 import { useState } from "react";
 
@@ -29,6 +30,8 @@ export const DelayNode = ({ data }: any) => {
           Wait <span className="text-blue-500">{data.time || "1 Hour(s)"}</span>
         </span>
       </div>
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Top} />
     </div>
   );
 };

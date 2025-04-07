@@ -2,9 +2,9 @@ import type { NodeTypes } from '@xyflow/react';
 
 import { AddNodeButton } from './AddNewNode';
 import { ColdEmailNode } from './ColdEmailNode';
+import { DelayNode } from './Delay';
 import { LeadSourceNode } from './LeadSourceNode';
 import { AppNode } from './types';
-import { DelayNode } from './Delay';
 export const initialNodes: AppNode[] = [
   
   
